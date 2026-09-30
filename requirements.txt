@@ -2,3 +2,5 @@ Flask
 requests
 qrcode[pil]
 gunicorn
+
+psycopg2-binary

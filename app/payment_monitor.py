@@ -52,28 +52,30 @@ if __name__ == "__main__":
         print("USDT_TRANSFERS", len(transfers))
 
 def save_unmatched_transfers(transfers):
-    from database import DB_PATH
-    import sqlite3
+    from database import get_connection
     from datetime import datetime
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
+    cur = conn.cursor()
 
     for item in transfers:
         tx_hash = item["tx_hash"]
 
-        exists = conn.execute(
-            "SELECT 1 FROM payments WHERE tx_hash = ?",
+        cur.execute(
+            "SELECT 1 FROM payments WHERE tx_hash = %s",
             (tx_hash,)
-        ).fetchone()
+        )
+
+        exists = cur.fetchone()
 
         if exists:
             continue
 
-        conn.execute(
+        cur.execute(
             """INSERT INTO payments
                (invoice_id, tx_hash, from_address, to_address, amount,
                 token, network, detected_at, status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (
                 None,
                 tx_hash,
@@ -88,24 +90,27 @@ def save_unmatched_transfers(transfers):
         )
 
     conn.commit()
+    cur.close()
     conn.close()
 
 def match_transfers_to_invoices(transfers):
-    from database import DB_PATH
-    import sqlite3
+    from database import get_connection
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
+    cur = conn.cursor()
 
     for item in transfers:
         if item["to_address"] != os.getenv("JOWDA_PAYMENT_WALLET"):
             continue
 
-        rows = conn.execute(
+        cur.execute(
             """SELECT id, invoice_number, amount
                FROM invoices
-               WHERE status = 'PENDING' AND amount = ?""",
+               WHERE status = 'PENDING' AND amount = %s""",
             (item["amount"],)
-        ).fetchall()
+        )
+
+        rows = cur.fetchall()
 
         if len(rows) != 1:
             continue
@@ -113,19 +118,21 @@ def match_transfers_to_invoices(transfers):
         invoice_id = rows[0][0]
         tx_hash = item["tx_hash"]
 
-        exists = conn.execute(
-            "SELECT 1 FROM payments WHERE tx_hash = ?",
+        cur.execute(
+            "SELECT 1 FROM payments WHERE tx_hash = %s",
             (tx_hash,)
-        ).fetchone()
+        )
+
+        exists = cur.fetchone()
 
         if exists:
             continue
 
-        conn.execute(
+        cur.execute(
             """INSERT INTO payments
                (invoice_id, tx_hash, from_address, to_address, amount,
                 token, network, detected_at, status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (
                 invoice_id,
                 tx_hash,
@@ -139,34 +146,13 @@ def match_transfers_to_invoices(transfers):
             )
         )
 
-        conn.execute(
-            "UPDATE invoices SET status = 'PAID' WHERE id = ?",
+        cur.execute(
+            "UPDATE invoices SET status = 'PAID' WHERE id = %s",
             (invoice_id,)
         )
 
     conn.commit()
     conn.close()
-
-def generate_unique_payment_amount(base_amount):
-    from database import DB_PATH
-    import sqlite3
-
-    conn = sqlite3.connect(DB_PATH)
-
-    for cents in range(1, 100):
-        payment_amount = round(float(base_amount) + (cents / 100), 2)
-
-        exists = conn.execute(
-            "SELECT 1 FROM invoices WHERE status = 'PENDING' AND payment_amount = ?",
-            (payment_amount,)
-        ).fetchone()
-
-        if not exists:
-            conn.close()
-            return payment_amount
-
-    conn.close()
-    raise RuntimeError("No unique payment amount available")
 
 def create_invoice_qr(invoice_number, base_url):
     import qrcode

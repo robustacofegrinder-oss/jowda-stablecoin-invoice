@@ -1,6 +1,5 @@
 from flask import Flask, request, redirect, session
 import os
-import sqlite3
 import requests
 from datetime import datetime
 import secrets
@@ -234,13 +233,15 @@ def verify_payment():
     if not tx_hash or len(tx_hash) != 64:
         return payment_result("Invalid TX Hash", "Please check the transaction hash and try again.")
 
-    conn = sqlite3.connect(
-        str(__import__("invoices").DB_PATH)
-    )
-    used = conn.execute(
-        "SELECT 1 FROM payments WHERE tx_hash = ?",
+    from database import get_connection
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT 1 FROM payments WHERE tx_hash = %s",
         (tx_hash,)
-    ).fetchone()
+    )
+    used = cur.fetchone()
+    cur.close()
     conn.close()
 
     if used:
@@ -313,14 +314,14 @@ def verify_payment():
 
     from_address, to_address, amount = matched
 
-    conn = sqlite3.connect(
-        str(__import__("invoices").DB_PATH)
-    )
-    conn.execute(
+    from database import get_connection
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
         """INSERT INTO payments
            (invoice_id, tx_hash, from_address, to_address, amount,
             token, network, detected_at, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
         (
             invoice["id"],
             tx_hash,
@@ -333,11 +334,12 @@ def verify_payment():
             "MATCHED"
         )
     )
-    conn.execute(
-        "UPDATE invoices SET status = 'PAID', tx_hash = ? WHERE id = ?",
+    cur.execute(
+        "UPDATE invoices SET status = 'PAID', tx_hash = %s WHERE id = %s",
         (tx_hash, invoice["id"])
     )
     conn.commit()
+    cur.close()
     conn.close()
 
     return payment_result("Payment Verified", f"Invoice {invoice_number} is now PAID.", True)
