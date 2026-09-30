@@ -457,17 +457,27 @@ def payment(plan):
         return redirect("/checkout")
 
     if "invoice_number" not in session:
-        invoice_number = generate_invoice_number()
-        create_invoice(
-            invoice_number,
-            session["customer_name"],
-            float(price.split()[0]),
-            PAYMENT_WALLET_ADDRESS,
-            None,
-            session["business_name"]
-        )
-        session["invoice_number"] = invoice_number
-        create_invoice_qr(invoice_number, request.host_url.rstrip("/"))
+        try:
+            print("PAYMENT_DEBUG: start invoice creation", flush=True)
+            invoice_number = generate_invoice_number()
+            print(f"PAYMENT_DEBUG: invoice_number={invoice_number}", flush=True)
+            create_invoice(
+                invoice_number,
+                session["customer_name"],
+                float(price.split()[0]),
+                PAYMENT_WALLET_ADDRESS,
+                None,
+                session["business_name"]
+            )
+            print("PAYMENT_DEBUG: create_invoice OK", flush=True)
+            session["invoice_number"] = invoice_number
+            create_invoice_qr(invoice_number, request.host_url.rstrip("/"))
+            print("PAYMENT_DEBUG: create_invoice_qr OK", flush=True)
+        except Exception:
+            import traceback
+            print("PAYMENT_DEBUG: ERROR", flush=True)
+            traceback.print_exc()
+            raise
 
     return f"""<!DOCTYPE html>
 <html lang="en">
