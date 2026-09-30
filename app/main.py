@@ -1,0 +1,5 @@
+from config import APP_NAME, PAYMENT_TOKEN, PAYMENT_NETWORK
+
+print(APP_NAME)
+print(PAYMENT_TOKEN)
+print(PAYMENT_NETWORK)
