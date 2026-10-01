@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, session
+from flask import Flask, request, redirect, session, send_file
 import os
 import requests
 from datetime import datetime
@@ -9,6 +9,10 @@ from config import PAYMENT_WALLET_ADDRESS
 
 app = Flask(__name__)
 app.secret_key = 'jowda-session-key'
+
+@app.route("/googleb51f2905fbbd3099.html")
+def google_verification():
+    return send_file("/home/robustacofegrinder/googleb51f2905fbbd3099.html")
 
 def generate_invoice_number():
     return "JOWDA-" + datetime.now().strftime("%Y%m%d") + "-" + secrets.token_hex(2).upper()
