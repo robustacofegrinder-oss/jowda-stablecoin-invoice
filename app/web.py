@@ -56,6 +56,8 @@ def home():
     .brand{font-size:38px;font-weight:700;color:#1746a2}
     .tag{font-size:13px;color:#71809a;margin-top:6px}
     .preview{max-width:700px;margin:28px auto 0;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 15px 45px rgba(23,70,162,.14);text-align:left}
+    .preview-row{display:flex;align-items:center;justify-content:center;gap:28px;margin-top:28px}.jowda-image{width:220px;max-width:30%;height:auto;border-radius:16px;box-shadow:0 15px 45px rgba(23,70,162,.14)}
+    @media(max-width:900px){.preview-row{flex-direction:column}.jowda-image{max-width:280px;width:70%}}
     .top{background:#1746a2;color:#fff;padding:24px 30px;display:flex;justify-content:space-between;gap:20px}
     .invoice-brand{font-size:24px;font-weight:700}
     .small{font-size:11px;opacity:.8;margin-top:5px}
@@ -105,7 +107,8 @@ def home():
       <div class="brand">JOWDA</div>
       <div class="tag">NO LIMITS TO TRUST</div>
       <div class="tag">Smart Invoicing &amp; Payment Reconciliation</div>
-      <div class="preview">
+      <div class="preview-row">
+        <div class="preview">
         <div class="top">
           <div><div class="invoice-brand">JOWDA</div><div class="small">NO LIMITS TO TRUST</div><div class="small">Smart Invoicing &amp; Payment Reconciliation</div></div>
           <div><div class="inv-title">SAMPLE INVOICE</div><div class="small">#JOWDA-001</div></div>
@@ -127,6 +130,8 @@ def home():
           <div class="total"><span>Total Due</span><span>25,000 USDT</span></div>
         </div>
         <div class="footer"><strong>USDT — TRC20</strong><br>Thank you for your business.</div>
+        </div>
+        <img class="jowda-image" src="/static/jowda_image.jpg" alt="JOWDA">
       </div>
       <div class="protection">
         <div class="protection-title">Payment Protection</div>
