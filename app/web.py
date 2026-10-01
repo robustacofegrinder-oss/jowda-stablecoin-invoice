@@ -7,9 +7,26 @@ import secrets
 from invoices import create_invoice, get_invoice
 from payment_monitor import create_invoice_qr
 from config import PAYMENT_WALLET_ADDRESS
+from owner import owner_login, owner_logout, owner_required, owner_dashboard
 
 app = Flask(__name__)
 app.secret_key = 'jowda-session-key'
+
+
+@app.route("/owner/login", methods=["GET", "POST"])
+def owner_login_route():
+    return owner_login()
+
+
+
+@app.route("/owner")
+def owner_dashboard_route():
+    return owner_dashboard()
+
+@app.route("/owner/logout")
+def owner_logout_route():
+    return owner_logout()
+
 
 @app.route("/googleb51f2905fbbd3099.html")
 def google_verification():
