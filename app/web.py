@@ -160,6 +160,7 @@ def home():
           <div>✓ Print / Save Invoice as PDF</div>
         </div>
         <div style="text-align:center;margin-top:28px;"><a href="/checkout" style="display:inline-block;background:#2563eb;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;letter-spacing:.4px;">CREATE YOUR INVOICE</a></div>
+        <div style="text-align:center;margin-top:28px;padding-bottom:10px;color:#53657d;font-size:14px;">Contact: <a href="mailto:JOWDATEC@gmail.com" style="color:#1746a2;font-weight:700;text-decoration:none;">JOWDATEC@gmail.com</a></div>
       </div>
     </div>
     </body>
