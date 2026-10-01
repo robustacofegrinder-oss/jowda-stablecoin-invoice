@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, session, send_file
 import os
+from pathlib import Path
 import requests
 from datetime import datetime
 import secrets
@@ -12,7 +13,7 @@ app.secret_key = 'jowda-session-key'
 
 @app.route("/googleb51f2905fbbd3099.html")
 def google_verification():
-    return send_file("/home/robustacofegrinder/googleb51f2905fbbd3099.html")
+    return send_file(str(Path(__file__).resolve().parent.parent / "googleb51f2905fbbd3099.html"))
 
 def generate_invoice_number():
     return "JOWDA-" + datetime.now().strftime("%Y%m%d") + "-" + secrets.token_hex(2).upper()
