@@ -32,6 +32,15 @@ def tron_base58_to_hex(address):
     return payload.hex().lower()[2:]
 
 
+@app.route("/sitemap.xml")
+def sitemap():
+    return """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://jowda-stablecoin-invoice.onrender.com/</loc></url>
+<url><loc>https://jowda-stablecoin-invoice.onrender.com/plans</loc></url>
+<url><loc>https://jowda-stablecoin-invoice.onrender.com/create-invoice</loc></url>
+</urlset>""", 200, {"Content-Type": "application/xml"}
+
 @app.route("/")
 def home():
     return """
