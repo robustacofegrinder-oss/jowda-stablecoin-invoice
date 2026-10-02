@@ -1,4 +1,5 @@
 from flask import request, session, redirect
+from database import get_connection
 
 OWNER_USERNAME = "mohammedalajem"
 OWNER_PASSWORD = __import__("os").environ.get("JOWDA_OWNER_PASSWORD")
@@ -27,6 +28,33 @@ def owner_required():
 def owner_dashboard():
     if not owner_required():
         return redirect("/owner/login")
-    return """<h2>JOWDA Owner Panel</h2>
-<p>Owner access confirmed.</p>
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) FROM invoices")
+    total_invoices = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM payments")
+    total_payments = cur.fetchone()[0]
+
+    cur.execute("SELECT COALESCE(SUM(amount), 0) FROM invoices")
+    total_invoice_amount = cur.fetchone()[0]
+
+    cur.execute("SELECT status, COUNT(*) FROM invoices GROUP BY status ORDER BY status")
+    statuses = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    status_html = "".join(
+        f"<li>{status}: {count}</li>" for status, count in statuses
+    )
+
+    return f"""<h2>JOWDA Owner Panel</h2>
+<p><strong>Total Invoices:</strong> {total_invoices}</p>
+<p><strong>Total Payments:</strong> {total_payments}</p>
+<p><strong>Total Invoice Amount:</strong> {total_invoice_amount} USDT</p>
+<h3>Invoice Status</h3>
+<ul>{status_html}</ul>
 <a href="/owner/logout">LOGOUT</a>"""
