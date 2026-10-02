@@ -10,7 +10,7 @@ from config import PAYMENT_WALLET_ADDRESS
 from owner import owner_login, owner_logout, owner_required, owner_dashboard
 
 app = Flask(__name__)
-app.secret_key = 'jowda-session-key'
+app.secret_key = os.environ.get('JOWDA_SESSION_SECRET')
 
 
 @app.route("/owner/login", methods=["GET", "POST"])
